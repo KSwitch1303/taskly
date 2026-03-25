@@ -53,6 +53,15 @@ export const api = {
       headers: { Authorization: `Bearer ${getToken()}` },
       body: JSON.stringify(payload)
     }),
+  offerClick: () =>
+    request('/api/offers/click', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${getToken()}` }
+    }),
+  offerClicks: () =>
+    request('/api/offers/clicks', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    }),
   adminWithdrawals: (status = 'pending') =>
     request(`/api/admin/withdrawals?status=${encodeURIComponent(status)}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
@@ -65,6 +74,10 @@ export const api = {
   rejectWithdrawal: (id) =>
     request(`/api/admin/withdrawals/${id}/reject`, {
       method: 'POST',
+      headers: { Authorization: `Bearer ${getToken()}` }
+    }),
+  adminOfferClicks: (status = 'pending') =>
+    request(`/api/admin/offer-clicks?status=${encodeURIComponent(status)}`, {
       headers: { Authorization: `Bearer ${getToken()}` }
     })
 };

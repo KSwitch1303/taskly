@@ -213,3 +213,20 @@ button:disabled {
 .danger {
   background: #dc2626;
 }
+
+.admin-click-row {
+  grid-template-columns: 1.2fr 120px 120px 120px 1fr 200px;
+  align-items: center;
+}
+
+.divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 24px 0;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -5,6 +5,7 @@ const postbackRoute = require('./routes/postback');
 const authRoute = require('./routes/auth');
 const walletRoute = require('./routes/wallet');
 const adminRoute = require('./routes/admin');
+const offersRoute = require('./routes/offers');
 const cors = require('cors');
 
 dotenv.config();
@@ -17,6 +18,7 @@ app.use('/api/postback', postbackRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/wallet', walletRoute);
 app.use('/api/admin', adminRoute);
+app.use('/api/offers', offersRoute);
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('DB Connected'));

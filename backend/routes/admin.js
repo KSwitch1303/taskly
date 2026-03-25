@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const Withdrawal = require('../models/Withdrawal');
 const Transaction = require('../models/Transaction');
+const OfferClick = require('../models/OfferClick');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -69,6 +70,20 @@ router.post('/withdrawals/:id/reject', requireAuth, requireAdmin, async (req, re
     return res.json({ withdrawal });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to reject withdrawal' });
+  }
+});
+
+router.get('/offer-clicks', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const status = req.query.status;
+    const filter = status ? { status } : {};
+    const clicks = await OfferClick.find(filter)
+      .populate('user', 'email')
+      .sort({ createdAt: -1 })
+      .limit(200);
+    return res.json({ clicks });
+  } catch (err) {
+    return res.status(500).json({ message: 'Failed to fetch offer clicks' });
   }
 });
 

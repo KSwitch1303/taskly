@@ -4,9 +4,13 @@ import { api } from '../api';
 export default function Admin() {
   const [status, setStatus] = useState('pending');
   const [withdrawals, setWithdrawals] = useState([]);
+  const [clickStatus, setClickStatus] = useState('pending');
+  const [offerClicks, setOfferClicks] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [clickLoading, setClickLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const [clickError, setClickError] = useState('');
 
   const loadWithdrawals = async (currentStatus) => {
     setLoading(true);
@@ -24,6 +28,22 @@ export default function Admin() {
   useEffect(() => {
     loadWithdrawals(status);
   }, [status]);
+
+  useEffect(() => {
+    const loadClicks = async () => {
+      setClickLoading(true);
+      setClickError('');
+      try {
+        const data = await api.adminOfferClicks(clickStatus);
+        setOfferClicks(data.clicks || []);
+      } catch (err) {
+        setClickError(err.message);
+      } finally {
+        setClickLoading(false);
+      }
+    };
+    loadClicks();
+  }, [clickStatus]);
 
   const handleApprove = async (id) => {
     setMessage('');
@@ -100,6 +120,49 @@ export default function Admin() {
                 <span className="muted">—</span>
               )}
             </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="divider" />
+
+      <div className="admin-header">
+        <h3>Offer Clicks</h3>
+        <div className="admin-controls">
+          <label>
+            Status
+            <select value={clickStatus} onChange={(e) => setClickStatus(e.target.value)}>
+              <option value="pending">pending</option>
+              <option value="confirmed">confirmed</option>
+              <option value="expired">expired</option>
+            </select>
+          </label>
+          <button onClick={() => setClickStatus((s) => s)} disabled={clickLoading}>
+            {clickLoading ? 'Refreshing...' : 'Refresh'}
+          </button>
+        </div>
+      </div>
+
+      {clickError && <div className="error">{clickError}</div>}
+
+      <div className="table">
+        <div className="row header admin-click-row">
+          <div>User</div>
+          <div>Status</div>
+          <div>USD</div>
+          <div>Points</div>
+          <div>Txid</div>
+          <div>Created</div>
+        </div>
+        {offerClicks.length === 0 && <div className="muted">No offer clicks found.</div>}
+        {offerClicks.map((click) => (
+          <div className="row admin-click-row" key={click._id}>
+            <div>{click.user?.email || click.user}</div>
+            <div>{click.status}</div>
+            <div>{Number(click.amountUsd || 0).toFixed(2)}</div>
+            <div>{click.points || 0}</div>
+            <div className="truncate">{click.txid || '—'}</div>
+            <div>{new Date(click.createdAt).toLocaleString()}</div>
           </div>
         ))}
       </div>

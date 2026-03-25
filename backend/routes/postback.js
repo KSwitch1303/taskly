@@ -2,16 +2,21 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const Transaction = require('../models/Transaction');
+const OfferClick = require('../models/OfferClick');
 
 router.get('/', async (req, res) => {
   try {
     const { user_id, amount, txid, secret } = req.query;
 
+    console.log('POSTBACK HIT:', req.query);
+
     if (secret !== process.env.CPA_SECRET) {
+      console.log('POSTBACK INVALID SECRET');
       return res.status(403).send('Invalid secret');
     }
 
     if (!user_id || !amount || !txid) {
+      console.log('POSTBACK MISSING PARAMS');
       return res.status(400).send('Missing required parameters');
     }
 
@@ -22,6 +27,7 @@ router.get('/', async (req, res) => {
 
     const user = await User.findById(user_id);
     if (!user) {
+      console.log('POSTBACK USER NOT FOUND:', user_id);
       return res.status(404).send('User not found');
     }
 
@@ -44,9 +50,33 @@ router.get('/', async (req, res) => {
       });
     } catch (err) {
       if (err && err.code === 11000) {
+        console.log('POSTBACK DUPLICATE TXID:', txid);
         return res.send('Already credited');
       }
       throw err;
+    }
+
+    const pendingClick = await OfferClick.findOne({
+      user: user._id,
+      status: 'pending'
+    }).sort({ createdAt: -1 });
+
+    if (pendingClick) {
+      pendingClick.status = 'confirmed';
+      pendingClick.txid = txid;
+      pendingClick.amountUsd = amountUsd;
+      pendingClick.points = points;
+      pendingClick.confirmedAt = new Date();
+      await pendingClick.save();
+    } else {
+      await OfferClick.create({
+        user: user._id,
+        status: 'confirmed',
+        txid,
+        amountUsd,
+        points,
+        confirmedAt: new Date()
+      });
     }
 
     if (points > 0) {
