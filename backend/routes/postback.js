@@ -56,26 +56,26 @@ router.get('/', async (req, res) => {
       throw err;
     }
 
-    const pendingClick = await OfferClick.findOne({
+    const clicked = await OfferClick.findOne({
       user: user._id,
-      status: 'pending'
+      status: 'clicked'
     }).sort({ createdAt: -1 });
 
-    if (pendingClick) {
-      pendingClick.status = 'confirmed';
-      pendingClick.txid = txid;
-      pendingClick.amountUsd = amountUsd;
-      pendingClick.points = points;
-      pendingClick.confirmedAt = new Date();
-      await pendingClick.save();
+    if (clicked) {
+      clicked.status = 'pending';
+      clicked.txid = txid;
+      clicked.amountUsd = amountUsd;
+      clicked.points = points;
+      clicked.postbackAt = new Date();
+      await clicked.save();
     } else {
       await OfferClick.create({
         user: user._id,
-        status: 'confirmed',
+        status: 'pending',
         txid,
         amountUsd,
         points,
-        confirmedAt: new Date()
+        postbackAt: new Date()
       });
     }
 

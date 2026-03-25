@@ -132,6 +132,7 @@ export default function Admin() {
           <label>
             Status
             <select value={clickStatus} onChange={(e) => setClickStatus(e.target.value)}>
+              <option value="clicked">clicked</option>
               <option value="pending">pending</option>
               <option value="confirmed">confirmed</option>
               <option value="expired">expired</option>

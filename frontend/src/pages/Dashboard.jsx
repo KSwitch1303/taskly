@@ -24,8 +24,8 @@ export default function Dashboard({ user }) {
     ? `${smartLinkBase}${smartLinkBase.includes('?') ? '&' : '?'}subid=${user._id}`
     : '';
 
+  const clickCount = clicks.filter((c) => c.status === 'clicked').length;
   const pendingCount = clicks.filter((c) => c.status === 'pending').length;
-  const confirmedCount = clicks.filter((c) => c.status === 'confirmed').length;
 
   const handleOfferClick = async () => {
     setClickError('');
@@ -34,7 +34,7 @@ export default function Dashboard({ user }) {
     window.open(offerUrl, '_blank', 'noopener,noreferrer');
     try {
       await api.offerClick();
-      setMessage('Offer opened. Earnings may take 5–30 minutes to reflect.');
+      setMessage('Offer opened. We will mark it pending once CPAgrip confirms it.');
       const data = await api.offerClicks();
       setClicks(data.clicks || []);
     } catch (err) {
@@ -64,12 +64,12 @@ export default function Dashboard({ user }) {
           <div className="value">{user.referralCode}</div>
         </div>
         <div className="panel">
-          <div className="label">Pending Earnings</div>
-          <div className="value">{pendingCount}</div>
+          <div className="label">Clicks</div>
+          <div className="value">{clickCount}</div>
         </div>
         <div className="panel">
-          <div className="label">Confirmed Earnings</div>
-          <div className="value">{confirmedCount}</div>
+          <div className="label">Pending (Postback)</div>
+          <div className="value">{pendingCount}</div>
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export default function Dashboard({ user }) {
       </div>
 
       <div className="muted">
-        Rewards may take 5–30 minutes to reflect after completing an offer.
+        Rewards may take 5–30 minutes after completion. Pending appears when CPAgrip sends the postback.
       </div>
 
       {balance && (

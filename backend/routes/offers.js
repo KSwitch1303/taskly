@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.post('/click', requireAuth, async (req, res) => {
   try {
-    const click = await OfferClick.create({ user: req.user.id });
+    const click = await OfferClick.create({ user: req.user.id, status: 'clicked' });
     return res.json({ clickId: click._id });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to record click' });
