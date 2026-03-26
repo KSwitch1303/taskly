@@ -38,14 +38,14 @@ export default function Withdraw() {
       <h2>Withdraw</h2>
       {balance && (
         <div className="muted">
-          Available points: {balance.points} • Minimum: {balance.minWithdrawPoints}
+          Available TP: {balance.points} - Minimum: {balance.minWithdrawPoints}
         </div>
       )}
       {message && <div className="success">{message}</div>}
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit} className="form">
         <label>
-          Points to withdraw
+          T-points to withdraw
           <input
             value={points}
             onChange={(e) => setPoints(e.target.value)}

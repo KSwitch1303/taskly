@@ -7,6 +7,14 @@ import Dashboard from './pages/Dashboard';
 import Withdraw from './pages/Withdraw';
 import Transactions from './pages/Transactions';
 import Admin from './pages/Admin';
+import Earn from './pages/Earn';
+import Landing from './pages/Landing';
+import About from './pages/About';
+import HowItWorks from './pages/HowItWorks';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 function RequireAuth({ user, children }) {
   if (!user) {
@@ -61,22 +69,43 @@ export default function App() {
   return (
     <div className="app">
       <header className="topbar">
-        <div className="brand">CPAGrip Earn MVP</div>
-        {user && (
-          <nav className="nav">
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/transactions">Transactions</Link>
-            <Link to="/withdraw">Withdraw</Link>
-            {user.role === 'admin' && <Link to="/admin">Admin</Link>}
-            <button className="link-button" onClick={handleLogout}>
-              Logout
-            </button>
-          </nav>
-        )}
+        <div className="brand">Taskly</div>
+        <nav className="nav">
+          <Link to="/">Home</Link>
+          <Link to="/how-it-works">How it works</Link>
+          <Link to="/faq">FAQ</Link>
+          <Link to="/contact">Contact</Link>
+          {user ? (
+            <>
+              <Link to="/dashboard">Dashboard</Link>
+              <Link to="/earn">Earn</Link>
+              <Link to="/transactions">Transactions</Link>
+              <Link to="/withdraw">Withdraw</Link>
+              {user.role === 'admin' && <Link to="/admin">Admin</Link>}
+              <button className="link-button" onClick={handleLogout}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">Login</Link>
+              <Link className="nav-cta" to="/register">
+                Get started
+              </Link>
+            </>
+          )}
+        </nav>
       </header>
 
       <main className="content">
         <Routes>
+          <Route path="/" element={<Landing />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/how-it-works" element={<HowItWorks />} />
+          <Route path="/faq" element={<FAQ />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<Privacy />} />
           <Route path="/login" element={<Login onAuth={setUser} />} />
           <Route path="/register" element={<Register onAuth={setUser} />} />
           <Route
@@ -96,6 +125,14 @@ export default function App() {
             }
           />
           <Route
+            path="/earn"
+            element={
+              <RequireAuth user={user}>
+                <Earn user={user} />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="/withdraw"
             element={
               <RequireAuth user={user}>
@@ -111,10 +148,18 @@ export default function App() {
               </RequireAdmin>
             }
           />
-          <Route path="/" element={<Navigate to={user ? '/dashboard' : '/login'} replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+
+      <footer className="footer">
+        <div>(c) {new Date().getFullYear()} Taskly</div>
+        <div className="footer-links">
+          <Link to="/about">About</Link>
+          <Link to="/terms">Terms</Link>
+          <Link to="/privacy">Privacy</Link>
+        </div>
+      </footer>
     </div>
   );
 }

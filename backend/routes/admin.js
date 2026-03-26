@@ -3,6 +3,7 @@ const User = require('../models/User');
 const Withdrawal = require('../models/Withdrawal');
 const Transaction = require('../models/Transaction');
 const OfferClick = require('../models/OfferClick');
+const AdGemEvent = require('../models/AdGemEvent');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -84,6 +85,20 @@ router.get('/offer-clicks', requireAuth, requireAdmin, async (req, res) => {
     return res.json({ clicks });
   } catch (err) {
     return res.status(500).json({ message: 'Failed to fetch offer clicks' });
+  }
+});
+
+router.get('/adgem-events', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const status = req.query.status;
+    const filter = status ? { status } : {};
+    const events = await AdGemEvent.find(filter)
+      .populate('user', 'email')
+      .sort({ createdAt: -1 })
+      .limit(200);
+    return res.json({ events });
+  } catch (err) {
+    return res.status(500).json({ message: 'Failed to fetch AdGem events' });
   }
 });
 

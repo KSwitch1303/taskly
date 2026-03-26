@@ -62,10 +62,24 @@ export const api = {
     request('/api/offers/clicks', {
       headers: { Authorization: `Bearer ${getToken()}` }
     }),
-  adminWithdrawals: (status = 'pending') =>
-    request(`/api/admin/withdrawals?status=${encodeURIComponent(status)}`, {
+  adgemClick: () =>
+    request('/api/adgem/click', {
+      method: 'POST',
       headers: { Authorization: `Bearer ${getToken()}` }
     }),
+  adgemEvents: () =>
+    request('/api/adgem/events', {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    }),
+  adminWithdrawals: (status = 'pending') => {
+    const path =
+      !status || status === 'all'
+        ? '/api/admin/withdrawals'
+        : `/api/admin/withdrawals?status=${encodeURIComponent(status)}`;
+    return request(path, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+  },
   approveWithdrawal: (id) =>
     request(`/api/admin/withdrawals/${id}/approve`, {
       method: 'POST',
@@ -76,8 +90,22 @@ export const api = {
       method: 'POST',
       headers: { Authorization: `Bearer ${getToken()}` }
     }),
-  adminOfferClicks: (status = 'pending') =>
-    request(`/api/admin/offer-clicks?status=${encodeURIComponent(status)}`, {
+  adminOfferClicks: (status = 'pending') => {
+    const path =
+      !status || status === 'all'
+        ? '/api/admin/offer-clicks'
+        : `/api/admin/offer-clicks?status=${encodeURIComponent(status)}`;
+    return request(path, {
       headers: { Authorization: `Bearer ${getToken()}` }
-    })
+    });
+  },
+  adminAdgemEvents: (status = 'all') => {
+    const path =
+      !status || status === 'all'
+        ? '/api/admin/adgem-events'
+        : `/api/admin/adgem-events?status=${encodeURIComponent(status)}`;
+    return request(path, {
+      headers: { Authorization: `Bearer ${getToken()}` }
+    });
+  }
 };

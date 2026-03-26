@@ -4,13 +4,13 @@ import { api } from '../api';
 export default function Admin() {
   const [status, setStatus] = useState('pending');
   const [withdrawals, setWithdrawals] = useState([]);
-  const [clickStatus, setClickStatus] = useState('pending');
-  const [offerClicks, setOfferClicks] = useState([]);
+  const [adgemStatus, setAdgemStatus] = useState('all');
+  const [adgemEvents, setAdgemEvents] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [clickLoading, setClickLoading] = useState(false);
+  const [adgemLoading, setAdgemLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
-  const [clickError, setClickError] = useState('');
+  const [adgemError, setAdgemError] = useState('');
 
   const loadWithdrawals = async (currentStatus) => {
     setLoading(true);
@@ -25,25 +25,26 @@ export default function Admin() {
     }
   };
 
+  const loadAdgemEvents = async (currentStatus) => {
+    setAdgemLoading(true);
+    setAdgemError('');
+    try {
+      const data = await api.adminAdgemEvents(currentStatus);
+      setAdgemEvents(data.events || []);
+    } catch (err) {
+      setAdgemError(err.message);
+    } finally {
+      setAdgemLoading(false);
+    }
+  };
+
   useEffect(() => {
     loadWithdrawals(status);
   }, [status]);
 
   useEffect(() => {
-    const loadClicks = async () => {
-      setClickLoading(true);
-      setClickError('');
-      try {
-        const data = await api.adminOfferClicks(clickStatus);
-        setOfferClicks(data.clicks || []);
-      } catch (err) {
-        setClickError(err.message);
-      } finally {
-        setClickLoading(false);
-      }
-    };
-    loadClicks();
-  }, [clickStatus]);
+    loadAdgemEvents(adgemStatus);
+  }, [adgemStatus]);
 
   const handleApprove = async (id) => {
     setMessage('');
@@ -69,6 +70,9 @@ export default function Admin() {
     }
   };
 
+  const clickedCount = adgemEvents.filter((e) => e.status === 'clicked').length;
+  const postbackCount = adgemEvents.filter((e) => e.status === 'postback').length;
+
   return (
     <div className="card">
       <div className="admin-header">
@@ -77,6 +81,7 @@ export default function Admin() {
           <label>
             Status
             <select value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="all">all</option>
               <option value="pending">pending</option>
               <option value="approved">approved</option>
               <option value="rejected">rejected</option>
@@ -117,7 +122,7 @@ export default function Admin() {
                   </button>
                 </>
               ) : (
-                <span className="muted">—</span>
+                <span className="muted">-</span>
               )}
             </div>
           </div>
@@ -127,43 +132,48 @@ export default function Admin() {
       <div className="divider" />
 
       <div className="admin-header">
-        <h3>Offer Clicks</h3>
+        <div>
+          <h3>AdGem Events</h3>
+          <div className="muted">
+            Clicks: {clickedCount} - Postbacks: {postbackCount}
+          </div>
+        </div>
         <div className="admin-controls">
           <label>
             Status
-            <select value={clickStatus} onChange={(e) => setClickStatus(e.target.value)}>
+            <select value={adgemStatus} onChange={(e) => setAdgemStatus(e.target.value)}>
+              <option value="all">all</option>
               <option value="clicked">clicked</option>
-              <option value="pending">pending</option>
+              <option value="postback">postback</option>
               <option value="confirmed">confirmed</option>
-              <option value="expired">expired</option>
             </select>
           </label>
-          <button onClick={() => setClickStatus((s) => s)} disabled={clickLoading}>
-            {clickLoading ? 'Refreshing...' : 'Refresh'}
+          <button onClick={() => loadAdgemEvents(adgemStatus)} disabled={adgemLoading}>
+            {adgemLoading ? 'Refreshing...' : 'Refresh'}
           </button>
         </div>
       </div>
 
-      {clickError && <div className="error">{clickError}</div>}
+      {adgemError && <div className="error">{adgemError}</div>}
 
       <div className="table">
-        <div className="row header admin-click-row">
+        <div className="row header admin-adgem-row">
           <div>User</div>
           <div>Status</div>
           <div>USD</div>
           <div>Points</div>
-          <div>Txid</div>
-          <div>Created</div>
+          <div>Transaction</div>
+          <div>Offer</div>
         </div>
-        {offerClicks.length === 0 && <div className="muted">No offer clicks found.</div>}
-        {offerClicks.map((click) => (
-          <div className="row admin-click-row" key={click._id}>
-            <div>{click.user?.email || click.user}</div>
-            <div>{click.status}</div>
-            <div>{Number(click.amountUsd || 0).toFixed(2)}</div>
-            <div>{click.points || 0}</div>
-            <div className="truncate">{click.txid || '—'}</div>
-            <div>{new Date(click.createdAt).toLocaleString()}</div>
+        {adgemEvents.length === 0 && <div className="muted">No AdGem events found.</div>}
+        {adgemEvents.map((event) => (
+          <div className="row admin-adgem-row" key={event._id}>
+            <div>{event.user?.email || event.user}</div>
+            <div>{event.status}</div>
+            <div>{Number(event.payoutUsd || 0).toFixed(2)}</div>
+            <div>{event.rewardPoints || 0}</div>
+            <div className="truncate">{event.transactionId || '-'}</div>
+            <div className="truncate">{event.offerName || '-'}</div>
           </div>
         ))}
       </div>

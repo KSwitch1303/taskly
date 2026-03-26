@@ -19,7 +19,7 @@ export default function Transactions() {
       <div className="table">
         <div className="row header">
           <div>Type</div>
-          <div>Points</div>
+          <div>TP</div>
           <div>Date</div>
         </div>
         {transactions.length === 0 && <div className="muted">No transactions yet.</div>}
@@ -34,3 +34,5 @@ export default function Transactions() {
     </div>
   );
 }
+
+
